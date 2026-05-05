@@ -150,7 +150,9 @@ window.addEventListener('message', function (e) {
     updateGraph(e.data.args);
   }
 });
-
+  
+Chart.register(window['chartjs-plugin-annotation']);
+  
 initChart();
 // Render defaults immediately so the graph isn't empty before the first message
 updateGraph({});
