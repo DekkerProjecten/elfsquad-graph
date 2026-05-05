@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Elfsquad Graph</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.4.0"></script>
+
+  <style>
+    body { font-family: Arial; margin: 20px; }
+  </style>
+</head>
+<body>
+
+<h3>Live Elfsquad Graph</h3>
+<canvas id="myChart"></canvas>
+
+<script>
+let chart;
+
+// 🧠 Create empty chart first
+function initChart() {
+  const ctx = document.getElementById('myChart').getContext('2d');
+
+  chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: [],
+      datasets: [
+        {
+          label: 'OC',
+          data: [],
+          yAxisID: 'y1',
+          borderWidth: 2
+        },
+        {
+          label: 'Shaft',
+          data: [],
+          yAxisID: 'y2',
+          borderWidth: 2
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        y1: {
+          type: 'linear',
+          position: 'right'
+        },
+        y2: {
+          type: 'linear',
+          position: 'left'
+        }
+      },
+      plugins: {
+        annotation: {
+          annotations: {
+            designLine: {
+              type: 'line',
+              xMin: 0,
+              xMax: 0,
+              borderWidth: 2,
+              label: {
+                enabled: true,
+                content: 'Design'
+              }
+            },
+            maxLine: {
+              type: 'line',
+              xMin: 0,
+              xMax: 0,
+              borderWidth: 2,
+              label: {
+                enabled: true,
+                content: 'Max'
+              }
+            }
+          }
+        }
+      }
+    }
+  });
+}
+
+// 🔄 Map Elfsquad data → chart
+function mapData(config) {
+  // ⚠️ CHANGE THESE KEYS to match your model
+  return {
+    immersionDepth: config.features?.IMMERSION_DEPTH || [],
+    oc: config.features?.OC || [],
+    shaft: config.features?.SHAFT || [],
+    design: config.features?.DESIGN || 0,
+    max: config.features?.MAX || 0
+  };
+}
+
+// 🔥 Update chart live
+function updateGraph(config) {
+  const data = mapData(config);
+
+  chart.data.labels = data.immersionDepth;
+  chart.data.datasets[0].data = data.oc;
+  chart.data.datasets[1].data = data.shaft;
+
+  chart.options.plugins.annotation.annotations.designLine.xMin = data.design;
+  chart.options.plugins.annotation.annotations.designLine.xMax = data.design;
+
+  chart.options.plugins.annotation.annotations.maxLine.xMin = data.max;
+  chart.options.plugins.annotation.annotations.maxLine.xMax = data.max;
+
+  chart.update();
+}
+
+// 📡 Listen to Elfsquad
+window.addEventListener('message', function(e) {
+  if (e.data && e.data.name === 'elfsquad.configurationUpdated') {
+    console.log("Incoming config:", e.data.args);
+    updateGraph(e.data.args);
+  }
+});
+
+// init
+initChart();
+</script>
+
+</body>
+</html>
