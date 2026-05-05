@@ -139,14 +139,20 @@ function updateGraph(config) {
   const d = mapData(config);
   chart.data.datasets[0].data = toPoints(d.immersion, d.oc);
   chart.data.datasets[1].data = toPoints(d.immersion, d.shaft);
-  chart.options.plugins.annotation.annotations.designLine.value = d.design;
-  chart.options.plugins.annotation.annotations.maxLine.value    = d.max;
+  
+  const anns = chart.options.plugins.annotation.annotations;
 
-  designAnn.value = d.design;
-  designAnn.label.content = `Design: ${d.design}`;
+  anns.designLine.value = d.design;
+  anns.designLine.label = {
+    ...anns.designLine.label,
+    content: `Design: ${d.design}`
+  };
 
-  maxAnn.value = d.max;
-  maxAnn.label.content = `Maximum: ${d.max}`;
+  anns.maxLine.value = d.max;
+  anns.maxLine.label = {
+    ...anns.maxLine.label,
+    content: `Maximum: ${d.max}`
+  };
   
   chart.update();
 }
